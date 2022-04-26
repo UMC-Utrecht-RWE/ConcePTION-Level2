@@ -1,0 +1,132 @@
+---
+title: "CONCEPTION - Level 2 checks"
+output: 
+  html_document:
+    theme: spacelab
+---
+
+```{r echo = F}
+######################################################################################################
+######################################################################################################
+
+#dir.data <- dir.data
+
+######################################################################################################
+######################################################################################################
+```
+
+
+```{css, echo = F}
+/*-- Specify div's for 'boxes', change color of TOC and center align titles: --*/
+div.box1 {background-color: #f5f5f0; border-radius: 5px; padding: 10px}
+div.box2 {border-style: solid; border-color: #f5f5f0; border-width: medium; border-radius: 5px; padding: 10px}
+.list-group-item.active, .list-group-item.active:focus, .list-group-item.active:hover {background-color: #76b82a; border-color: #76b82a}
+h1 {text-align: center; color: #3c7b8a}
+h2 {text-align: center; color: #76b82a}
+
+/*-- Add logo (based on https://rstudio4edu.github.io/rstudio4edu-book/rmd-fancy.html): --*/
+#TOC::before {content: ""; display: block; height: 60px; margin: 30px 10px 30px; background-image: url("conception_logo.png"); background-size: contain; background-position: center center; background-repeat: no-repeat}
+```
+
+```{r echo = F, results = 'hide', message = FALSE, warning = FALSE}
+if(!require('DT')) install.packages('DT', repos = 'https://cloud.r-project.org')
+library('DT')
+source('R_functions.R')
+res2.1 <- run_check_2.1(dir.data = dir.data)
+```
+
+<br>
+
+<div class = 'box1'>
+ - **Data directory:** `r dir.data`
+ - **Date/time:** `r Sys.time()`
+</div>
+
+<br>
+
+
+<div class = 'box2'>
+
+## 2.1 - Date values before birth
+
+<br>
+
+The table below shows shows the number of date values taking place before the person's date of birth, by table, date variable, and meaning:
+
+<br>
+
+```{r echo = F}
+res2.1$Results_HideSmallCounts$Percentage <- suppressWarnings(round(100 * as.numeric(res2.1$Results_HideSmallCounts$Issues) / as.numeric(res2.1$Results_HideSmallCounts$Total), 3))
+datatable(res2.1$Results_HideSmallCounts, rownames = F, class = 'cell-border stripe white-space: nowrap', options = list(scrollX = TRUE, pageLength = 10))
+```
+
+<br>
+<br>
+
+The information in the table above is visualized in the figure below:
+
+```{r echo = F, fig.align = 'center'}
+d <- res2.1$Results_HideSmallCounts
+if(class(d) != 'data.frame'){
+	print('Error showing the results.')
+	}
+if(class(d) == 'data.frame'){
+	par(oma = c(0, 13, 0, 0), mar = c(2.5, 5, 0.5, 0.5))
+	plot(NULL, xlim = c(0, max(c(5, max(d$Percentage, na.rm = T)))), ylim = c(0.5, nrow(d) + 0.5), yaxs = 'i', axes = F, ylab = '', xlab = '', main = '')
+	abline(h = 1:nrow(d), col = 'grey', lty = 'dashed')
+	abline(v = seq(0, 100, 1), col = 'grey', lty = 'dashed')
+	for(i in 1:nrow(d)){
+		segments(x0 = 0, y0 = 1 + nrow(d) - i, x1 = d$Percentage[i], lwd = 2)
+		mtext(paste(substr(d$TABLE[i], 1, 30), substr(d$v.DATES[i], 1, 30), substr(d$Meaning[i], 1, 30), sep = '; '), at = 1 + nrow(d) - i, side = 2, las = 1, line = 1, cex = 0.6, adj = 1)
+		}
+	points(c(nrow(d):1) ~ d$Percentage, type = 'p', lwd = 2, pch = 16)
+	axis(1, cex.axis = 0.6)
+	box()
+	}
+```
+
+<br>
+<br>
+
+The table below shows the results after aggregating over meaning:
+
+<br>
+
+```{r echo = F}
+res2.1$Results_aggr_HideSmallCounts$Percentage <- suppressWarnings(round(100 * as.numeric(res2.1$Results_aggr_HideSmallCounts$Issues) / as.numeric(res2.1$Results_aggr_HideSmallCounts$Total), 3))
+datatable(res2.1$Results_aggr_HideSmallCounts, rownames = F, class = 'cell-border stripe white-space: nowrap', options = list(scrollX = TRUE, pageLength = 10))
+```
+
+<br>
+<br>
+
+Any warnings/messages generated during the data processing and/or calculations are listed in the table below:
+
+<br>
+
+```{r echo = F}
+datatable(res2.1$Warnings, rownames = F, class = 'cell-border stripe white-space: nowrap', options = list(scrollX = TRUE, pageLength = 10))
+```
+
+<br>
+
+```{r echo = F}
+  ## Export all tables (note: results tables not hiding small counts are not exported, but could be added here if needed)
+  write.table(res2.1$Results_HideSmallCounts, file = paste0(output_dir,'CH2_1_Results_HideSmallCounts.csv'), sep = ',', row.names = F)
+  write.table(res2.1$Results_aggr_HideSmallCounts, file = paste0(output_dir,'CH2_1_Results_aggr_HideSmallCounts.csv'), sep = ',', row.names = F)
+  write.table(res2.1$Warnings, file = paste0(output_dir, 'CH2_1_Warnings.csv'), sep = ',', row.names = F)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
