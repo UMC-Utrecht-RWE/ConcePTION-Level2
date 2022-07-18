@@ -8,6 +8,7 @@ projectFolder<-dirname(rstudioapi::getSourceEditorContext()$path)
 setwd(projectFolder)
 
 source(paste0(projectFolder,"/","99_path.R"))
+source(paste0(projectFolder,"/Functions/IMPORT_PATTERN.R"))
 
 
 ## Run the individual checks (unless certain essential files are missing)

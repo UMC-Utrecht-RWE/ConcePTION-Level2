@@ -169,7 +169,7 @@
 		files <- dir(dir.data, pattern = '.csv')
 
 		## Stop if PERSONS.csv is not available
-		if(!any(files == 'PERSONS.csv')) stop('PERSONS.csv is not in dir.data. Execution halted')
+		if(!any(grepl('PERSONS', files))) stop('PERSONS.csv is not in dir.data. Execution halted')
 
 		## Combine info in one matrix: list all EVENTS, MEDICINES, PROCEDURES, VACCINES and MEDICAL_OBSERVATIONS tables (d), variables of interest (v) and the name of the 'meaning' column
 		m <- rbind(
@@ -187,13 +187,17 @@
 		Results <- vector('list', length = nrow(m))
 
 		## Import d.PERSONS (+ basic check if input is correctly formatted). Replace character vallues '' and ' ' by NA
-		d.PERSONS <- fread(paste0(dir.data, 'PERSONS.csv'), sep = ',', stringsAsFactors = FALSE, fill = TRUE)
-		d.PERSONS.colnames <- colnames(fread(paste0(dir.data, 'PERSONS.csv'), sep = ',', nrows = 0, stringsAsFactors = FALSE))	
+		d.PERSONS <- IMPORT_PATTERN(pat = "PERSONS", dir = dir.data, colls = c('person_id', 'day_of_birth', 'month_of_birth', 'year_of_birth'))
+		d.PERSONS.colnames <- colnames(d.PERSONS)	
 		if(ncol(d.PERSONS) == 1 | length(colnames(d.PERSONS)) != length(d.PERSONS.colnames)) stop('Problem with importing PERSONS.csv, please check if formatted correctly.') 
-		which.char <- which(sapply(1:ncol(d.PERSONS), FUN = function(i) class(d.PERSONS[[i]]) == 'character'))
-		for(i in which.char) if(any(d.PERSONS[[i]] == ' ' | d.PERSONS[[i]] == '', na.rm = T)) d.PERSONS[[i]][!is.na(d.PERSONS[[i]]) & (d.PERSONS[[i]] == ' ' | d.PERSONS[[i]] == '')] <- NA
-		rm(which.char)
-
+		
+		#Removed because this is done within import_pattern
+		###
+		#which.char <- which(sapply(1:ncol(d.PERSONS), FUN = function(i) class(d.PERSONS[[i]]) == 'character'))
+		#for(i in which.char) if(any(d.PERSONS[[i]] == ' ' | d.PERSONS[[i]] == '', na.rm = T)) d.PERSONS[[i]][!is.na(d.PERSONS[[i]]) & (d.PERSONS[[i]] == ' ' | d.PERSONS[[i]] == '')] <- NA
+		#rm(which.char)
+    ###
+		
 		## If d.PERSONS is empty, give an error
 		if(nrow(d.PERSONS) == 0) stop('PERSONS.csv is empty.')
 	
