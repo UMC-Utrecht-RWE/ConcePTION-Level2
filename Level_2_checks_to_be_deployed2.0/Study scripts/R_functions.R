@@ -1755,12 +1755,14 @@
 		if(substr(dir.data, nchar(dir.data), nchar(dir.data)) != '/') dir.data <- paste0(dir.data, '/')
 
 		## Import PERSONS (+ basic check if input is correctly formatted). Replace '' and ' ' by NA.
-		d.PERSONS <- fread(paste0(dir.data, 'PERSONS.csv'), sep = ',', stringsAsFactors = FALSE, fill = TRUE)
-		d.PERSONS.colnames <- colnames(fread(paste0(dir.data, 'PERSONS.csv'), sep = ',', nrows = 0, stringsAsFactors = FALSE))
+		d.PERSONS <- IMPORT_PATTERN(pat = "PERSONS", dir = dir.data, colls = c('person_id', 'day_of_birth', 'month_of_birth', 'year_of_birth'))
+		d.PERSONS.colnames <- colnames(d.PERSONS)	
+		lapply(c('day_of_birth', 'month_of_birth', 'year_of_birth'), function(x) d.PERSONS <- d.PERSONS[, eval(x) := as.numeric(get(x))])
+		
 		if(ncol(d.PERSONS) == 1 | length(colnames(d.PERSONS)) != length(d.PERSONS.colnames)) stop('Problem with importing PERSONS.csv, please check if formatted correctly.') 
-		which.char <- which(sapply(1:ncol(d.PERSONS), FUN = function(i) class(d.PERSONS[[i]]) == 'character'))
-		for(i in which.char) if(any(d.PERSONS[[i]] == ' ' | d.PERSONS[[i]] == '', na.rm = T)) d.PERSONS[[i]][!is.na(d.PERSONS[[i]]) & (d.PERSONS[[i]] == ' ' | d.PERSONS[[i]] == '')] <- NA
-		rm(which.char)
+		#which.char <- which(sapply(1:ncol(d.PERSONS), FUN = function(i) class(d.PERSONS[[i]]) == 'character'))
+		#for(i in which.char) if(any(d.PERSONS[[i]] == ' ' | d.PERSONS[[i]] == '', na.rm = T)) d.PERSONS[[i]][!is.na(d.PERSONS[[i]]) & (d.PERSONS[[i]] == ' ' | d.PERSONS[[i]] == '')] <- NA
+		#rm(which.char)
 
 		## If d.PERSONS is empty, give an error
 		if(nrow(d.PERSONS) == 0) stop('PERSONS.csv is empty.')
