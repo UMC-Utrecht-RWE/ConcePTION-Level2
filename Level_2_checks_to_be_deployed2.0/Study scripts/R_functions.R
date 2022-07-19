@@ -899,7 +899,7 @@
 		files <- dir(dir.data, pattern = '.csv')
 		
 		## Stop if PERSONS.csv is not available
-		if(!any(files == 'PERSONS.csv')) stop('PERSONS.csv is not in dir.data. Execution halted')
+		if(!any(grepl('PERSONS', files))) stop('PERSONS.csv is not in dir.data. Execution halted')
 		
 		## Combine info in one matrix
 		m <- rbind(
@@ -917,12 +917,13 @@
 		Results <- vector('list', length = nrow(m))
 		
 		## Import d.PERSONS (+ basic check if input is correctly formatted). Replace character values '' and ' ' by NA.
-		d.PERSONS <- fread(paste0(dir.data, 'PERSONS.csv'), sep = ',', stringsAsFactors = FALSE, fill = TRUE)
-		d.PERSONS.colnames <- colnames(fread(paste0(dir.data, 'PERSONS.csv'), sep = ',', nrows = 0, stringsAsFactors = FALSE))	
-		if(ncol(d.PERSONS) == 1 | length(colnames(d.PERSONS)) != length(d.PERSONS.colnames)) stop('Problem with importing PERSONS.csv, please check if formatted correctly.') 
-		which.char <- which(sapply(1:ncol(d.PERSONS), FUN = function(i) class(d.PERSONS[[i]]) == 'character'))
-		for(i in which.char) if(any(d.PERSONS[[i]] == ' ' | d.PERSONS[[i]] == '', na.rm = T)) d.PERSONS[[i]][!is.na(d.PERSONS[[i]]) & (d.PERSONS[[i]] == ' ' | d.PERSONS[[i]] == '')] <- NA
-		rm(which.char)
+		d.PERSONS <- IMPORT_PATTERN(pat = "PERSONS", dir = dir.data, colls = c('person_id'))
+		d.PERSONS.colnames <- colnames(d.PERSONS)	
+		
+		#if(ncol(d.PERSONS) == 1 | length(colnames(d.PERSONS)) != length(d.PERSONS.colnames)) stop('Problem with importing PERSONS.csv, please check if formatted correctly.') 
+		#which.char <- which(sapply(1:ncol(d.PERSONS), FUN = function(i) class(d.PERSONS[[i]]) == 'character'))
+		#for(i in which.char) if(any(d.PERSONS[[i]] == ' ' | d.PERSONS[[i]] == '', na.rm = T)) d.PERSONS[[i]][!is.na(d.PERSONS[[i]]) & (d.PERSONS[[i]] == ' ' | d.PERSONS[[i]] == '')] <- NA
+		#rm(which.char)
 		
 		## If d.PERSONS is empty, give an error
 		if(nrow(d.PERSONS) == 0) stop('PERSONS.csv is empty.')
