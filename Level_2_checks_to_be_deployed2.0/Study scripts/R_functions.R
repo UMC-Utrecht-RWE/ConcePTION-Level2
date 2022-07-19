@@ -1375,8 +1375,8 @@
 		m0 <- expand.grid(TABLE = 'VISIT_OCCURRENCE', d = files[grepl('^VISIT_OCCURRENCE', files)], stringsAsFactors = F)
 		d.VIS_OCC <- vector('list', length = nrow(m0))
 		for(i in 1:nrow(m0)){
-		 	d <- fread(paste0(dir.data, m0$d[i]), sep = ',', stringsAsFactors = FALSE, fill = TRUE)
-			d.colnames <- colnames(fread(paste0(dir.data, m0$d[i]), sep = ',', stringsAsFactors = FALSE, nrows = 0))
+		 	d <- fread(paste0(dir.data, m0$d[i]), sep = ',', stringsAsFactors = FALSE, fill = TRUE)[, c('visit_occurrence_id', 'visit_end_date'), with = F]
+			d.colnames <- colnames(d)
 			if(ncol(d) == 1 | length(colnames(d)) != length(d.colnames)) stop(paste0('Problem with importing ', m$d[i], ', please check if formatted correctly.'))
 			if(all(c('visit_occurrence_id', 'visit_end_date') %in% d.colnames)) d.VIS_OCC[[i]] <- d[,c('visit_occurrence_id', 'visit_end_date')]
 			if(!all(c('visit_occurrence_id', 'visit_end_date') %in% d.colnames)) d.VIS_OCC[[i]] <- NULL ## Only use vis_occ data when both variables are available
