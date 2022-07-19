@@ -670,7 +670,7 @@
 		files <- dir(dir.data, pattern = '.csv')
 		
 		## Stop if OBSERVATION_PERIODS.csv is not available
-		if(!any(files == 'OBSERVATION_PERIODS.csv')) stop('OBSERVATION_PERIODS.csv is not in dir.data. Execution halted')
+		if(!any(grepl('OBSERVATION_PERIODS', files))) stop('PERSONS.csv is not in dir.data. Execution halted')
 		
 		## Combine info in one matrix
 		m <- rbind(
@@ -688,12 +688,15 @@
 		Results <- vector('list', length = nrow(m))
 		
 		## Import d.OBSERVATION_PERIODS (+ basic check if input is correctly formatted). Replace character vallues '' and ' ' by NA
-		d.OBSERVATION_PERIODS <- fread(paste0(dir.data, 'OBSERVATION_PERIODS.csv'), sep = ',', stringsAsFactors = FALSE, fill = TRUE)
-		d.OBSERVATION_PERIODS.colnames <- colnames(fread(paste0(dir.data, 'OBSERVATION_PERIODS.csv'), sep = ',', nrows = 0, stringsAsFactors = FALSE))	
+		
+		d.OBSERVATION_PERIODS <- IMPORT_PATTERN(pat = "OBSERVATION_PERIODS", dir = dir.data, colls = c('person_id', 'op_start_date', 'op_end_date'))
+		d.OBSERVATION_PERIODS.colnames <- colnames(d.OBSERVATION_PERIODS)	
+		#lapply(c('day_of_birth', 'month_of_birth', 'year_of_birth'), function(x) d.PERSONS <- d.PERSONS[, eval(x) := as.numeric(get(x))])
+		
 		if(ncol(d.OBSERVATION_PERIODS) == 1 | length(colnames(d.OBSERVATION_PERIODS)) != length(d.OBSERVATION_PERIODS.colnames)) stop('Problem with importing OBSERVATION_PERIODS.csv, please check if formatted correctly.') 
-		which.char <- which(sapply(1:ncol(d.OBSERVATION_PERIODS), FUN = function(i) class(d.OBSERVATION_PERIODS[[i]]) == 'character'))
-		for(i in which.char) if(any(d.OBSERVATION_PERIODS[[i]] == ' ' | d.OBSERVATION_PERIODS[[i]] == '', na.rm = T)) d.OBSERVATION_PERIODS[[i]][!is.na(d.OBSERVATION_PERIODS[[i]]) & (d.OBSERVATION_PERIODS[[i]] == ' ' | d.OBSERVATION_PERIODS[[i]] == '')] <- NA
-		rm(which.char)
+		#which.char <- which(sapply(1:ncol(d.OBSERVATION_PERIODS), FUN = function(i) class(d.OBSERVATION_PERIODS[[i]]) == 'character'))
+		#for(i in which.char) if(any(d.OBSERVATION_PERIODS[[i]] == ' ' | d.OBSERVATION_PERIODS[[i]] == '', na.rm = T)) d.OBSERVATION_PERIODS[[i]][!is.na(d.OBSERVATION_PERIODS[[i]]) & (d.OBSERVATION_PERIODS[[i]] == ' ' | d.OBSERVATION_PERIODS[[i]] == '')] <- NA
+		#rm(which.char)
 		
 		## If d.OBSERVATION_PERIODS is empty, give an error
 		if(nrow(d.OBSERVATION_PERIODS) == 0) stop('OBSERVATION_PERIODS.csv is empty.')
