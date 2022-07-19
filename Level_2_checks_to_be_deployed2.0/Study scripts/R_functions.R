@@ -169,7 +169,7 @@
 		files <- dir(dir.data, pattern = '.csv')
 
 		## Stop if PERSONS.csv is not available
-		if(!any(files == 'PERSONS.csv')) stop('PERSONS.csv is not in dir.data. Execution halted')
+		if(!any(grepl('PERSONS', files))) stop('PERSONS.csv is not in dir.data. Execution halted')
 
 		## Combine info in one matrix: list all EVENTS, MEDICINES, PROCEDURES, VACCINES and MEDICAL_OBSERVATIONS tables (d), variables of interest (v) and the name of the 'meaning' column
 		m <- rbind(
@@ -187,13 +187,18 @@
 		Results <- vector('list', length = nrow(m))
 
 		## Import d.PERSONS (+ basic check if input is correctly formatted). Replace character vallues '' and ' ' by NA
-		d.PERSONS <- fread(paste0(dir.data, 'PERSONS.csv'), sep = ',', stringsAsFactors = FALSE, fill = TRUE)
-		d.PERSONS.colnames <- colnames(fread(paste0(dir.data, 'PERSONS.csv'), sep = ',', nrows = 0, stringsAsFactors = FALSE))	
+		d.PERSONS <- IMPORT_PATTERN(pat = "PERSONS", dir = dir.data, colls = c('person_id', 'day_of_birth', 'month_of_birth', 'year_of_birth'))
+		d.PERSONS.colnames <- colnames(d.PERSONS)
+		lapply(c('day_of_birth', 'month_of_birth', 'year_of_birth'), function(x) d.PERSONS <- d.PERSONS[, eval(x) := as.numeric(get(x))])
 		if(ncol(d.PERSONS) == 1 | length(colnames(d.PERSONS)) != length(d.PERSONS.colnames)) stop('Problem with importing PERSONS.csv, please check if formatted correctly.') 
-		which.char <- which(sapply(1:ncol(d.PERSONS), FUN = function(i) class(d.PERSONS[[i]]) == 'character'))
-		for(i in which.char) if(any(d.PERSONS[[i]] == ' ' | d.PERSONS[[i]] == '', na.rm = T)) d.PERSONS[[i]][!is.na(d.PERSONS[[i]]) & (d.PERSONS[[i]] == ' ' | d.PERSONS[[i]] == '')] <- NA
-		rm(which.char)
-
+		
+		#Removed because this is done within import_pattern
+		###
+		#which.char <- which(sapply(1:ncol(d.PERSONS), FUN = function(i) class(d.PERSONS[[i]]) == 'character'))
+		#for(i in which.char) if(any(d.PERSONS[[i]] == ' ' | d.PERSONS[[i]] == '', na.rm = T)) d.PERSONS[[i]][!is.na(d.PERSONS[[i]]) & (d.PERSONS[[i]] == ' ' | d.PERSONS[[i]] == '')] <- NA
+		#rm(which.char)
+    ###
+		
 		## If d.PERSONS is empty, give an error
 		if(nrow(d.PERSONS) == 0) stop('PERSONS.csv is empty.')
 	
@@ -413,8 +418,9 @@
 		files <- dir(dir.data, pattern = '.csv')
 
 		## Stop if PERSONS.csv is not available
-		if(!any(files == 'PERSONS.csv')) stop('PERSONS.csv is not in dir.data. Execution halted')
-
+		if(!any(grepl('PERSONS', files))) stop('PERSONS.csv is not in dir.data. Execution halted')
+		
+		
 		## Combine info in one matrix: list all EVENTS, MEDICINES, PROCEDURES, VACCINES and MEDICAL_OBSERVATIONS tables (d), variables of interest (v) and the name of the 'meaning' column
 		m <- rbind(
 			expand.grid(TABLE = 'EVENTS', d.DATES = files[grepl('^EVENTS', files)], 					v.DATES = c('start_date_record'), 				v.MEANING = 'meaning_of_event', 		stringsAsFactors = F),
@@ -431,12 +437,14 @@
 		Results <- vector('list', length = nrow(m))
 
 		## Import d.PERSONS (+ basic check if input is correctly formatted). Replace character vallues '' and ' ' by NA
-		d.PERSONS <- fread(paste0(dir.data, 'PERSONS.csv'), sep = ',', stringsAsFactors = FALSE, fill = TRUE)
-		d.PERSONS.colnames <- colnames(fread(paste0(dir.data, 'PERSONS.csv'), sep = ',', nrows = 0, stringsAsFactors = FALSE))	
+		d.PERSONS <- IMPORT_PATTERN(pat = "PERSONS", dir = dir.data, colls = c('person_id', 'day_of_death', 'month_of_death', 'year_of_death'))
+		d.PERSONS.colnames <- colnames(d.PERSONS)	
+		lapply(c('day_of_death', 'month_of_death', 'year_of_death'), function(x) d.PERSONS <- d.PERSONS[, eval(x) := as.numeric(get(x))])
+		
 		if(ncol(d.PERSONS) == 1 | length(colnames(d.PERSONS)) != length(d.PERSONS.colnames)) stop('Problem with importing PERSONS.csv, please check if formatted correctly.') 
-		which.char <- which(sapply(1:ncol(d.PERSONS), FUN = function(i) class(d.PERSONS[[i]]) == 'character'))
-		for(i in which.char) if(any(d.PERSONS[[i]] == ' ' | d.PERSONS[[i]] == '', na.rm = T)) d.PERSONS[[i]][!is.na(d.PERSONS[[i]]) & (d.PERSONS[[i]] == ' ' | d.PERSONS[[i]] == '')] <- NA
-		rm(which.char)
+		#which.char <- which(sapply(1:ncol(d.PERSONS), FUN = function(i) class(d.PERSONS[[i]]) == 'character'))
+		#for(i in which.char) if(any(d.PERSONS[[i]] == ' ' | d.PERSONS[[i]] == '', na.rm = T)) d.PERSONS[[i]][!is.na(d.PERSONS[[i]]) & (d.PERSONS[[i]] == ' ' | d.PERSONS[[i]] == '')] <- NA
+		#rm(which.char)
 
 		## If d.PERSONS is empty, give an error
 		if(nrow(d.PERSONS) == 0) stop('PERSONS.csv is empty.')
@@ -662,7 +670,7 @@
 		files <- dir(dir.data, pattern = '.csv')
 		
 		## Stop if OBSERVATION_PERIODS.csv is not available
-		if(!any(files == 'OBSERVATION_PERIODS.csv')) stop('OBSERVATION_PERIODS.csv is not in dir.data. Execution halted')
+		if(!any(grepl('OBSERVATION_PERIODS', files))) stop('PERSONS.csv is not in dir.data. Execution halted')
 		
 		## Combine info in one matrix
 		m <- rbind(
@@ -680,12 +688,15 @@
 		Results <- vector('list', length = nrow(m))
 		
 		## Import d.OBSERVATION_PERIODS (+ basic check if input is correctly formatted). Replace character vallues '' and ' ' by NA
-		d.OBSERVATION_PERIODS <- fread(paste0(dir.data, 'OBSERVATION_PERIODS.csv'), sep = ',', stringsAsFactors = FALSE, fill = TRUE)
-		d.OBSERVATION_PERIODS.colnames <- colnames(fread(paste0(dir.data, 'OBSERVATION_PERIODS.csv'), sep = ',', nrows = 0, stringsAsFactors = FALSE))	
+		
+		d.OBSERVATION_PERIODS <- IMPORT_PATTERN(pat = "OBSERVATION_PERIODS", dir = dir.data, colls = c('person_id', 'op_start_date', 'op_end_date'))
+		d.OBSERVATION_PERIODS.colnames <- colnames(d.OBSERVATION_PERIODS)	
+		#lapply(c('day_of_birth', 'month_of_birth', 'year_of_birth'), function(x) d.PERSONS <- d.PERSONS[, eval(x) := as.numeric(get(x))])
+		
 		if(ncol(d.OBSERVATION_PERIODS) == 1 | length(colnames(d.OBSERVATION_PERIODS)) != length(d.OBSERVATION_PERIODS.colnames)) stop('Problem with importing OBSERVATION_PERIODS.csv, please check if formatted correctly.') 
-		which.char <- which(sapply(1:ncol(d.OBSERVATION_PERIODS), FUN = function(i) class(d.OBSERVATION_PERIODS[[i]]) == 'character'))
-		for(i in which.char) if(any(d.OBSERVATION_PERIODS[[i]] == ' ' | d.OBSERVATION_PERIODS[[i]] == '', na.rm = T)) d.OBSERVATION_PERIODS[[i]][!is.na(d.OBSERVATION_PERIODS[[i]]) & (d.OBSERVATION_PERIODS[[i]] == ' ' | d.OBSERVATION_PERIODS[[i]] == '')] <- NA
-		rm(which.char)
+		#which.char <- which(sapply(1:ncol(d.OBSERVATION_PERIODS), FUN = function(i) class(d.OBSERVATION_PERIODS[[i]]) == 'character'))
+		#for(i in which.char) if(any(d.OBSERVATION_PERIODS[[i]] == ' ' | d.OBSERVATION_PERIODS[[i]] == '', na.rm = T)) d.OBSERVATION_PERIODS[[i]][!is.na(d.OBSERVATION_PERIODS[[i]]) & (d.OBSERVATION_PERIODS[[i]] == ' ' | d.OBSERVATION_PERIODS[[i]] == '')] <- NA
+		#rm(which.char)
 		
 		## If d.OBSERVATION_PERIODS is empty, give an error
 		if(nrow(d.OBSERVATION_PERIODS) == 0) stop('OBSERVATION_PERIODS.csv is empty.')
@@ -888,7 +899,7 @@
 		files <- dir(dir.data, pattern = '.csv')
 		
 		## Stop if PERSONS.csv is not available
-		if(!any(files == 'PERSONS.csv')) stop('PERSONS.csv is not in dir.data. Execution halted')
+		if(!any(grepl('PERSONS', files))) stop('PERSONS.csv is not in dir.data. Execution halted')
 		
 		## Combine info in one matrix
 		m <- rbind(
@@ -906,12 +917,13 @@
 		Results <- vector('list', length = nrow(m))
 		
 		## Import d.PERSONS (+ basic check if input is correctly formatted). Replace character values '' and ' ' by NA.
-		d.PERSONS <- fread(paste0(dir.data, 'PERSONS.csv'), sep = ',', stringsAsFactors = FALSE, fill = TRUE)
-		d.PERSONS.colnames <- colnames(fread(paste0(dir.data, 'PERSONS.csv'), sep = ',', nrows = 0, stringsAsFactors = FALSE))	
-		if(ncol(d.PERSONS) == 1 | length(colnames(d.PERSONS)) != length(d.PERSONS.colnames)) stop('Problem with importing PERSONS.csv, please check if formatted correctly.') 
-		which.char <- which(sapply(1:ncol(d.PERSONS), FUN = function(i) class(d.PERSONS[[i]]) == 'character'))
-		for(i in which.char) if(any(d.PERSONS[[i]] == ' ' | d.PERSONS[[i]] == '', na.rm = T)) d.PERSONS[[i]][!is.na(d.PERSONS[[i]]) & (d.PERSONS[[i]] == ' ' | d.PERSONS[[i]] == '')] <- NA
-		rm(which.char)
+		d.PERSONS <- IMPORT_PATTERN(pat = "PERSONS", dir = dir.data, colls = c('person_id'))
+		d.PERSONS.colnames <- colnames(d.PERSONS)	
+		
+		#if(ncol(d.PERSONS) == 1 | length(colnames(d.PERSONS)) != length(d.PERSONS.colnames)) stop('Problem with importing PERSONS.csv, please check if formatted correctly.') 
+		#which.char <- which(sapply(1:ncol(d.PERSONS), FUN = function(i) class(d.PERSONS[[i]]) == 'character'))
+		#for(i in which.char) if(any(d.PERSONS[[i]] == ' ' | d.PERSONS[[i]] == '', na.rm = T)) d.PERSONS[[i]][!is.na(d.PERSONS[[i]]) & (d.PERSONS[[i]] == ' ' | d.PERSONS[[i]] == '')] <- NA
+		#rm(which.char)
 		
 		## If d.PERSONS is empty, give an error
 		if(nrow(d.PERSONS) == 0) stop('PERSONS.csv is empty.')
@@ -1127,8 +1139,8 @@
 		m0 <- expand.grid(TABLE = 'VISIT_OCCURRENCE', d = files[grepl('^VISIT_OCCURRENCE', files)], stringsAsFactors = F)
 		d.VIS_OCC <- vector('list', length = nrow(m0))
 		for(i in 1:nrow(m0)){
-		 	d <- fread(paste0(dir.data, m0$d[i]), sep = ',', stringsAsFactors = FALSE, fill = TRUE)
-			d.colnames <- colnames(fread(paste0(dir.data, m0$d[i]), sep = ',', stringsAsFactors = FALSE, nrows = 0))
+		 	d <- fread(paste0(dir.data, m0$d[i]), sep = ',', stringsAsFactors = FALSE, fill = TRUE)[, c('visit_occurrence_id', 'visit_start_date'), with = F]
+			d.colnames <- colnames(d)
 			if(ncol(d) == 1 | length(colnames(d)) != length(d.colnames)) stop(paste0('Problem with importing ', m$d[i], ', please check if formatted correctly.'))
 			if(all(c('visit_occurrence_id', 'visit_start_date') %in% d.colnames)) d.VIS_OCC[[i]] <- d[,c('visit_occurrence_id', 'visit_start_date')]
 			if(!all(c('visit_occurrence_id', 'visit_start_date') %in% d.colnames)) d.VIS_OCC[[i]] <- NULL ## Only use vis_occ data when both variables are available
@@ -1363,8 +1375,8 @@
 		m0 <- expand.grid(TABLE = 'VISIT_OCCURRENCE', d = files[grepl('^VISIT_OCCURRENCE', files)], stringsAsFactors = F)
 		d.VIS_OCC <- vector('list', length = nrow(m0))
 		for(i in 1:nrow(m0)){
-		 	d <- fread(paste0(dir.data, m0$d[i]), sep = ',', stringsAsFactors = FALSE, fill = TRUE)
-			d.colnames <- colnames(fread(paste0(dir.data, m0$d[i]), sep = ',', stringsAsFactors = FALSE, nrows = 0))
+		 	d <- fread(paste0(dir.data, m0$d[i]), sep = ',', stringsAsFactors = FALSE, fill = TRUE)[, c('visit_occurrence_id', 'visit_end_date'), with = F]
+			d.colnames <- colnames(d)
 			if(ncol(d) == 1 | length(colnames(d)) != length(d.colnames)) stop(paste0('Problem with importing ', m$d[i], ', please check if formatted correctly.'))
 			if(all(c('visit_occurrence_id', 'visit_end_date') %in% d.colnames)) d.VIS_OCC[[i]] <- d[,c('visit_occurrence_id', 'visit_end_date')]
 			if(!all(c('visit_occurrence_id', 'visit_end_date') %in% d.colnames)) d.VIS_OCC[[i]] <- NULL ## Only use vis_occ data when both variables are available
@@ -1594,8 +1606,8 @@
 		m0 <- expand.grid(TABLE = 'VISIT_OCCURRENCE', d = files[grepl('^VISIT_OCCURRENCE', files)], stringsAsFactors = F)
 		d.VIS_OCC <- vector('list', length = nrow(m0))
 		for(i in 1:nrow(m0)){
-			d <- fread(paste0(dir.data, m0$d[i]), sep = ',', stringsAsFactors = FALSE, fill = TRUE)
-			d.colnames <- colnames(fread(paste0(dir.data, m0$d[i]), sep = ',', stringsAsFactors = FALSE, nrows = 0))
+			d <- fread(paste0(dir.data, m0$d[i]), sep = ',', stringsAsFactors = FALSE, fill = TRUE)[,c('visit_occurrence_id', 'person_id'), with = F]
+			d.colnames <- colnames(d)
 			if(ncol(d) == 1 | length(colnames(d)) != length(d.colnames)) stop(paste0('Problem with importing ', m$d[i], ', please check if formatted correctly.'))
 			if(all(c('visit_occurrence_id', 'person_id') %in% d.colnames)) d.VIS_OCC[[i]] <- d[,c('visit_occurrence_id', 'person_id')]
 			if(!all(c('visit_occurrence_id', 'person_id') %in% d.colnames)) d.VIS_OCC[[i]] <- NULL ## Only use vis_occ data when both variables are available
@@ -1743,12 +1755,14 @@
 		if(substr(dir.data, nchar(dir.data), nchar(dir.data)) != '/') dir.data <- paste0(dir.data, '/')
 
 		## Import PERSONS (+ basic check if input is correctly formatted). Replace '' and ' ' by NA.
-		d.PERSONS <- fread(paste0(dir.data, 'PERSONS.csv'), sep = ',', stringsAsFactors = FALSE, fill = TRUE)
-		d.PERSONS.colnames <- colnames(fread(paste0(dir.data, 'PERSONS.csv'), sep = ',', nrows = 0, stringsAsFactors = FALSE))
+		d.PERSONS <- IMPORT_PATTERN(pat = "PERSONS", dir = dir.data, colls = c('person_id', 'day_of_birth', 'month_of_birth', 'year_of_birth'))
+		d.PERSONS.colnames <- colnames(d.PERSONS)	
+		lapply(c('day_of_birth', 'month_of_birth', 'year_of_birth'), function(x) d.PERSONS <- d.PERSONS[, eval(x) := as.numeric(get(x))])
+		
 		if(ncol(d.PERSONS) == 1 | length(colnames(d.PERSONS)) != length(d.PERSONS.colnames)) stop('Problem with importing PERSONS.csv, please check if formatted correctly.') 
-		which.char <- which(sapply(1:ncol(d.PERSONS), FUN = function(i) class(d.PERSONS[[i]]) == 'character'))
-		for(i in which.char) if(any(d.PERSONS[[i]] == ' ' | d.PERSONS[[i]] == '', na.rm = T)) d.PERSONS[[i]][!is.na(d.PERSONS[[i]]) & (d.PERSONS[[i]] == ' ' | d.PERSONS[[i]] == '')] <- NA
-		rm(which.char)
+		#which.char <- which(sapply(1:ncol(d.PERSONS), FUN = function(i) class(d.PERSONS[[i]]) == 'character'))
+		#for(i in which.char) if(any(d.PERSONS[[i]] == ' ' | d.PERSONS[[i]] == '', na.rm = T)) d.PERSONS[[i]][!is.na(d.PERSONS[[i]]) & (d.PERSONS[[i]] == ' ' | d.PERSONS[[i]] == '')] <- NA
+		#rm(which.char)
 
 		## If d.PERSONS is empty, give an error
 		if(nrow(d.PERSONS) == 0) stop('PERSONS.csv is empty.')
