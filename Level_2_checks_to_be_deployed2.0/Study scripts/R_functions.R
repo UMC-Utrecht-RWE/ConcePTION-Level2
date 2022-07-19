@@ -188,7 +188,8 @@
 
 		## Import d.PERSONS (+ basic check if input is correctly formatted). Replace character vallues '' and ' ' by NA
 		d.PERSONS <- IMPORT_PATTERN(pat = "PERSONS", dir = dir.data, colls = c('person_id', 'day_of_birth', 'month_of_birth', 'year_of_birth'))
-		d.PERSONS.colnames <- colnames(d.PERSONS)	
+		d.PERSONS.colnames <- colnames(d.PERSONS)
+		lapply(c('day_of_birth', 'month_of_birth', 'year_of_birth'), function(x) d.PERSONS <- d.PERSONS[, eval(x) := as.numeric(get(x))])
 		if(ncol(d.PERSONS) == 1 | length(colnames(d.PERSONS)) != length(d.PERSONS.colnames)) stop('Problem with importing PERSONS.csv, please check if formatted correctly.') 
 		
 		#Removed because this is done within import_pattern
@@ -438,7 +439,7 @@
 		## Import d.PERSONS (+ basic check if input is correctly formatted). Replace character vallues '' and ' ' by NA
 		d.PERSONS <- IMPORT_PATTERN(pat = "PERSONS", dir = dir.data, colls = c('person_id', 'day_of_death', 'month_of_death', 'year_of_death'))
 		d.PERSONS.colnames <- colnames(d.PERSONS)	
-		
+		lapply(c('day_of_death', 'month_of_death', 'year_of_death'), function(x) d.PERSONS <- d.PERSONS[, eval(x) := as.numeric(get(x))])
 		
 		if(ncol(d.PERSONS) == 1 | length(colnames(d.PERSONS)) != length(d.PERSONS.colnames)) stop('Problem with importing PERSONS.csv, please check if formatted correctly.') 
 		#which.char <- which(sapply(1:ncol(d.PERSONS), FUN = function(i) class(d.PERSONS[[i]]) == 'character'))
